@@ -11,10 +11,23 @@ android {
         versionName '0.2'
         buildConfigField 'String', 'DEFAULT_SERVER', "\"${project.findProperty('tvRemoteServer') ?: ''}\""
     }
+    // APK ที่แจกใน GitHub Releases เซ็นด้วย key ของโปรเจกต์ (ตั้ง TVMCP_KEYSTORE + TVMCP_KEYSTORE_PASSWORD)
+    // build เองโดยไม่ตั้งค่า = ใช้ debug key ของเครื่องคุณ
+    def ks = System.getenv('TVMCP_KEYSTORE')
+    signingConfigs {
+        if (ks) {
+            project {
+                storeFile file(ks)
+                storePassword System.getenv('TVMCP_KEYSTORE_PASSWORD')
+                keyAlias 'tv-mcp'
+                keyPassword System.getenv('TVMCP_KEYSTORE_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig ks ? signingConfigs.project : signingConfigs.debug
         }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }

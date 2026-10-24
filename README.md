@@ -70,7 +70,16 @@ Railway bills by usage; the server must stay awake, so expect a small monthly co
 
 ### 2. Install the TV app
 
-Build it (JDK 17 + Android SDK 34):
+**Easiest:** download the signed APK from the latest release and sideload it with any downloader app on the TV:
+
+```
+https://github.com/hugo8xx/tv-mcp/releases/latest/download/tv-remote.apk
+```
+
+On first launch the app asks for your server URL (press **"เปลี่ยน server"**), then shows a pairing code.
+Release APKs are signed with certificate SHA-256 `4B:D4:D8:20:B0:0B:9A:C0:60:36:8A:F6:98:E1:CF:5C:40:8B:04:E9:21:0D:D0:78:66:CE:18:BD:AF:53:AF:46`.
+
+**Or build it yourself** (JDK 17 + Android SDK 34) — baking in your server URL skips typing it on the TV:
 
 ```bash
 cd android
