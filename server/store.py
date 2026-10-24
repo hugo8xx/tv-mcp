@@ -25,6 +25,9 @@ class Store:
                 revoked INTEGER NOT NULL DEFAULT 0);
             CREATE INDEX IF NOT EXISTS devices_user ON devices(user_id);
         """)
+        cols = {r[1] for r in self.db.execute("PRAGMA table_info(users)")}
+        if "claude_at" not in cols:  # เพิ่มทีหลัง (v0.4)
+            self.db.execute("ALTER TABLE users ADD COLUMN claude_at INTEGER NOT NULL DEFAULT 0")
         self.lock = threading.Lock()
         self._seen: dict[str, float] = {}
 
@@ -45,8 +48,11 @@ class Store:
         return now
 
     def user(self, uid: str):
-        rows = self._q("SELECT email, created FROM users WHERE id=?", uid)
-        return {"email": rows[0][0], "created": rows[0][1]} if rows else None
+        rows = self._q("SELECT email, created, claude_at FROM users WHERE id=?", uid)
+        return {"email": rows[0][0], "created": rows[0][1], "claude_at": rows[0][2]} if rows else None
+
+    def set_claude_at(self, uid: str, ts: int):
+        self._q("UPDATE users SET claude_at=? WHERE id=?", ts, uid)
 
     def delete_user(self, uid: str):
         self._q("DELETE FROM users WHERE id=?", uid)

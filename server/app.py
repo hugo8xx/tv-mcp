@@ -372,6 +372,7 @@ async def token(request: Request):
         return JSONResponse({"error": "unsupported_grant_type"}, 400)
     if not user_ok(uid, since):
         return JSONResponse({"error": "invalid_grant", "error_description": "account gone"}, 400)
+    claude_seen(uid)
     return _issue(client_id, uid, since)
 
 
@@ -517,15 +518,21 @@ async def pair_page(request: Request):
     if not user:
         return need_login(request)
 
-    def form(m=None, cls="err"):
-        return page("จับคู่ทีวี", f"""<h1>📺 จับคู่ทีวี</h1>
-<p class="mut">เปิดแอป MCP บนทีวี แล้วใส่รหัส 6 หลักที่ขึ้นบนจอ</p>{msg(m, cls)}
+    def form(m=None, cls="err", code=""):
+        if cls == "ok":
+            return page("จับคู่ทีวี", f"""<h1>จับคู่ทีวี</h1>{msg(m, cls)}
+<p class="mut">ดูต่อบนจอทีวีได้เลย ขั้นต่อไปจะขึ้นให้เอง</p><a class="btn" href="/account">ไปหน้าบัญชี</a>""")
+        # มาจาก QR บนทีวี (?code=…): ใส่รหัสให้แล้ว เหลือกดยืนยันปุ่มเดียว
+        pre = f'{code[:3]}-{code[3:]}' if len(code) == 6 else ""
+        lead = (f'จับคู่ทีวีที่ขึ้นรหัส <b>{escape(pre)}</b> กับบัญชี <b>{escape(user["email"]) if CLOUD else "ของคุณ"}</b>' if pre
+                else "เปิดแอป MCP บนทีวี แล้วใส่รหัส 6 หลักที่ขึ้นบนจอ")
+        return page("จับคู่ทีวี", f"""<h1>จับคู่ทีวี</h1><p class="mut">{lead}</p>{msg(m, cls)}
 <form method="post">{hidden({"csrf": csrf(user)})}
-<input name="code" inputmode="numeric" placeholder="รหัส 6 หลักบนจอทีวี" autocomplete="off" required autofocus>
-<button class="primary">จับคู่</button></form>""")
+<input name="code" inputmode="numeric" placeholder="รหัส 6 หลักบนจอทีวี" autocomplete="off" required value="{escape(pre)}"{"" if pre else " autofocus"}>
+<button class="primary"{" autofocus" if pre else ""}>{"ยืนยันจับคู่" if pre else "จับคู่"}</button></form>""")
 
     if request.method == "GET":
-        return form()
+        return form(code=re.sub(r"\D", "", request.query_params.get("code", ""))[:6])
     f = await request.form()
     if not csrf_ok(user, f):
         return form("หน้านี้หมดอายุ ลองใหม่")
@@ -694,6 +701,7 @@ async def mcp(request: Request):
         body = await request.json()
     except Exception:
         return JSONResponse({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "parse error"}}, 400)
+    claude_seen(uid)
     if isinstance(body, list):
         out = [r for r in [await _handle_rpc(uid, x) for x in body] if r]
     else:
@@ -781,6 +789,69 @@ def favicon(_: Request):
     return Response(ICON_SVG, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
 
 
+# ---------- ข้อมูลสำหรับ wizard บนทีวี ----------
+
+_claude_at: dict[str, float] = {}
+
+
+def claude_seen(uid: str):
+    """Claude ของผู้ใช้คนนี้เชื่อม connector แล้ว (ได้ token หรือเรียก /mcp) — ใช้ติ๊กขั้นที่ 3 บนทีวี"""
+    now = time.time()
+    if now - _claude_at.get(uid, 0) > 300:
+        _claude_at[uid] = now
+        if CLOUD:
+            store.set_claude_at(uid, int(now))
+
+
+def _mask(email: str) -> str:
+    name, _, dom = email.partition("@")
+    return (name[:2] + "•••@" + dom) if dom else ""
+
+
+async def tv_me(request: Request):
+    uid = _tv_auth(request)
+    if not uid:
+        return Response(status_code=401)
+    if CLOUD:
+        u = store.user(uid) or {}
+        claude = bool(u.get("claude_at")) or uid in _claude_at
+        who = _mask(u.get("email", ""))
+    else:
+        claude, who = uid in _claude_at, ""
+    return JSONResponse({"account": who, "claude": claude, "connect_url": f"{PUBLIC_URL}/connect"})
+
+
+def _qr_png(data: str) -> Response:
+    import io
+    import segno
+    buf = io.BytesIO()
+    segno.make(data, error="m").save(buf, kind="png", scale=10, border=2)
+    return Response(buf.getvalue(), media_type="image/png", headers={"Cache-Control": "no-store"})
+
+
+async def pair_qr(request: Request):
+    """QR ของขั้นที่ 1: เปิด /pair พร้อมรหัสใส่ไว้แล้ว — ต้องมี pair_id ของทีวีเครื่องนั้น"""
+    _clean_pairs()
+    p = _pairs.get(request.query_params.get("pid", ""))
+    if not p:
+        return Response(status_code=404)
+    return _qr_png(f"{PUBLIC_URL}/pair?code={p['code']}")
+
+
+def connect_qr(_: Request):
+    return _qr_png(f"{PUBLIC_URL}/connect")
+
+
+def connect_page(_: Request):
+    mcp_url = f"{PUBLIC_URL}/mcp"
+    return page("เชื่อม Claude", f"""<h1>เชื่อม Claude กับทีวี</h1>
+<p class="mut">ทำครั้งเดียว ใช้ได้ทั้ง Claude บนมือถือ เว็บ และ Desktop</p>
+<div class="card"><b>1.</b> เปิด <a href="https://claude.ai/settings/connectors">claude.ai › Settings › Connectors</a> แล้วกด <b>Add custom connector</b></div>
+<div class="card"><b>2.</b> ตั้งชื่อ <code>TV MCP</code> และใส่ URL<p><code>{escape(mcp_url)}</code></p></div>
+<div class="card"><b>3.</b> กด Connect แล้วกด <b>อนุญาต</b> ในหน้าที่ขึ้นมา — ทีวีจะขึ้น ✅ เอง</div>
+<p class="mut">ลองพิมพ์ใน Claude ว่า "เปิด YouTube บนทีวี"</p>""")
+
+
 def health(_: Request):
     body = {"ok": True, "mode": MODE}
     if not CLOUD:
@@ -834,6 +905,10 @@ app = Starlette(routes=[
     Route("/tv/result", tv_result, methods=["POST"]),
     Route("/tv/pair/start", pair_start, methods=["POST"]),
     Route("/tv/pair/poll", pair_poll, methods=["POST"]),
+    Route("/tv/pair/qr", pair_qr),
+    Route("/tv/me", tv_me),
+    Route("/qr/connect.png", connect_qr),
+    Route("/connect", connect_page),
 ])
 
 
