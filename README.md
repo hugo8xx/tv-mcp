@@ -19,6 +19,8 @@ Claude (mobile / web / desktop)
 
 No computer has to stay on and ADB can stay off once the app is installed.
 
+**Don't want to run a server?** Use the hosted beta at https://tv-mcp-cloud-production.up.railway.app — sign in with Google, install the APK, pair, and add `https://tv-mcp-cloud-production.up.railway.app/mcp` as a connector in claude.ai. It runs this same code with `MODE=cloud`.
+
 > The TV app UI and tool messages are currently in Thai.
 
 ## What's in the repo
@@ -65,6 +67,7 @@ railway up -s tv-mcp --ci
 | `BLOCKED_DOMAINS` | optional — extra domains `tv_open_url` refuses, comma separated |
 | `DEVICE_EPOCH` | optional — bump it to unpair every TV |
 | `PUBLIC_URL` | optional — defaults to `https://$RAILWAY_PUBLIC_DOMAIN` |
+| `MODE` | `selfhost` (default, one owner, password) or `cloud` (many households, Google sign-in, needs `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and a volume at `DATA_DIR`) |
 
 Railway bills by usage; the server must stay awake, so expect a small monthly cost.
 
@@ -76,7 +79,7 @@ Railway bills by usage; the server must stay awake, so expect a small monthly co
 https://github.com/hugo8xx/tv-mcp/releases/latest/download/tv-remote.apk
 ```
 
-On first launch the app asks for your server URL (press **"เปลี่ยน server"**), then shows a pairing code.
+The release APK points at the hosted service (below). To use your own server, press **"เปลี่ยน server"** in the app and enter its URL, then pair.
 Release APKs are signed with certificate SHA-256 `4B:D4:D8:20:B0:0B:9A:C0:60:36:8A:F6:98:E1:CF:5C:40:8B:04:E9:21:0D:D0:78:66:CE:18:BD:AF:53:AF:46`.
 
 **Or build it yourself** (JDK 17 + Android SDK 34) — baking in your server URL skips typing it on the TV:

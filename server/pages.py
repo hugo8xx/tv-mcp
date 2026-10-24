@@ -9,7 +9,7 @@ CSS = """
 @media (prefers-color-scheme:dark){:root{--bg:#16131c;--fg:#eee9f5;--mut:#a59db3;--acc:#b597ff;--line:#2e2838;--ok:#6fd497;--err:#ff8a80}}
 *{box-sizing:border-box}body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--fg);
 max-width:460px;margin:0 auto;padding:8vh 16px 40px;line-height:1.55}
-h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 8px}p{margin:8px 0}
+a{color:var(--acc)}h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 8px}p{margin:8px 0}
 input,button,.btn{font:inherit;font-size:17px;padding:12px 14px;width:100%;margin-top:10px;border-radius:12px;
 border:1px solid var(--line);background:var(--bg);color:var(--fg);display:block;text-align:center;text-decoration:none}
 button.primary,.btn.primary{background:var(--acc);color:#fff;border:0}button.link{border:0;background:none;color:var(--acc);width:auto;padding:4px 0}
