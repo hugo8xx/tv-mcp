@@ -1,0 +1,8 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "deploy": {
+    "startCommand": "python app.py",
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
