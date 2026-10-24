@@ -8,10 +8,10 @@ SOURCE_URL = "https://github.com/hugo8xx/tv-mcp"
 APK_URL = f"{SOURCE_URL}/releases/latest/download/tv-remote.apk"
 
 CSS = """
-:root{--bg:#f7f5fb;--card:#fff;--fg:#1d1b22;--mut:#6b6575;--acc:#5b3a8c;--acc2:#8b5cf6;--line:#e6e1ee;
---ok:#14743a;--err:#b3261e;--shadow:0 1px 2px rgba(30,20,50,.06),0 8px 24px rgba(30,20,50,.06)}
-@media (prefers-color-scheme:dark){:root{--bg:#121017;--card:#1b1822;--fg:#eee9f5;--mut:#a59db3;--acc:#b597ff;--acc2:#7c5cf0;
---line:#2c2736;--ok:#6fd497;--err:#ff8a80;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}}
+:root{--bg:#f4f8f7;--card:#fff;--fg:#14211f;--mut:#5d6f6b;--acc:#0f6e5e;--acc2:#14a085;--line:#dfe9e6;
+--ok:#14743a;--err:#b3261e;--shadow:0 1px 2px rgba(10,40,35,.06),0 8px 24px rgba(10,40,35,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1614;--card:#12201d;--fg:#e6f2ef;--mut:#93aaa4;--acc:#5fd3b9;--acc2:#0f8a75;
+--line:#21332f;--ok:#6fd497;--err:#ff8a80;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Sukhumvit Set","Noto Sans Thai","Segoe UI",system-ui,sans-serif;
 background:var(--bg);color:var(--fg);max-width:480px;margin:0 auto;padding:7vh 16px 40px;line-height:1.6}
@@ -58,17 +58,19 @@ font-weight:700;font-size:14px;margin-bottom:8px}
 .copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 """
 
-TV_SVG = """<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#5b3a8c"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-<rect x="2" y="6" width="28" height="19" rx="5" fill="url(#g)"/><path d="M11 29h10" stroke="#8b5cf6" stroke-width="2.4" stroke-linecap="round"/>
-<path d="M10 13.5l3.2 3.2L10 20M16 20h6" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>"""
+GLYPH = ('<rect x="252" y="402" width="520" height="220" rx="110" fill="none" stroke="#fff" stroke-width="40"/>'
+         '<circle cx="392" cy="512" r="36" fill="#fff"/><circle cx="512" cy="512" r="36" fill="#fff"/>'
+         '<circle cx="632" cy="512" r="36" fill="#fff"/>')
+# ไอคอน 1c (art/icon-glyph.svg) บนพื้นเขียว — ใช้ทั้งโลโก้บนหน้าเว็บและ favicon
+ICON_SVG = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><rect width="1024" height="1024" rx="224" fill="#0F6E5E"/>{GLYPH}</svg>'
+TV_SVG = ICON_SVG.replace("<svg ", '<svg width="30" height="30" aria-hidden="true" ', 1)
 
 
 def page(title: str, body: str, status: int = 200, wide: bool = False) -> HTMLResponse:
     return HTMLResponse(f"""<!doctype html><html lang="th"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{escape(title)} · TV MCP</title>
 <meta name="description" content="สั่งทีวี Android TV ที่บ้านด้วยคำพูด ผ่าน Claude บนมือถือ เว็บ หรือ Desktop">
-<style>{CSS}</style></head><body{' class="wide"' if wide else ''}>{body}
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>{CSS}</style></head><body{' class="wide"' if wide else ''}>{body}
 <footer><a href="/">TV MCP</a> · <a href="/account">บัญชี</a> · <a href="/privacy">ความเป็นส่วนตัว</a> ·
 <a href="{SOURCE_URL}">source (AGPL-3.0)</a> · © PinaTo Co., Ltd.</footer></body></html>""", status)
 

@@ -40,11 +40,11 @@ public class MainActivity extends Activity {
         super.onCreate(b);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.rgb(24, 18, 40));
+        root.setBackgroundColor(Color.rgb(8, 36, 31));
         root.setPadding(96, 56, 96, 56);
 
         TextView title = text(34);
-        title.setText("📺 MCP");
+        title.setText("MCP");
         big = text(44);
         big.setGravity(Gravity.CENTER);
         big.setTextColor(Color.rgb(255, 214, 102));
@@ -91,9 +91,9 @@ public class MainActivity extends Activity {
         bg.setCornerRadius(16);
         btn.setBackground(bg);
         View.OnFocusChangeListener f = (v, has) -> {
-            bg.setColor(has ? Color.rgb(255, 214, 102) : Color.rgb(70, 62, 92));
+            bg.setColor(has ? Color.rgb(255, 214, 102) : Color.rgb(15, 110, 94));
             bg.setStroke(has ? 6 : 0, Color.WHITE);
-            btn.setTextColor(has ? Color.rgb(24, 18, 40) : Color.WHITE);
+            btn.setTextColor(has ? Color.rgb(8, 36, 31) : Color.WHITE);
             btn.animate().scaleX(has ? 1.08f : 1f).scaleY(has ? 1.08f : 1f).setDuration(120).start();
         };
         btn.setOnFocusChangeListener(f);

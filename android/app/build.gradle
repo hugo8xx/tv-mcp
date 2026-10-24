@@ -7,8 +7,8 @@ android {
         applicationId 'com.pinato.remote'
         minSdk 26
         targetSdk 34
-        versionCode 3
-        versionName '0.3'
+        versionCode 4
+        versionName '0.3.1'
         buildConfigField 'String', 'DEFAULT_SERVER', "\"${project.findProperty('tvRemoteServer') ?: ''}\""
     }
     // APK ที่แจกใน GitHub Releases เซ็นด้วย key ของโปรเจกต์ (ตั้ง TVMCP_KEYSTORE + TVMCP_KEYSTORE_PASSWORD)

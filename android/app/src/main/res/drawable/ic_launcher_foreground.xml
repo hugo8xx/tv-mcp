@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- art/icon-glyph.svg (1024×1024) วางกลางผืน 1536 → ผืนดีไซน์ = 72dp ที่มองเห็นของ adaptive icon 108dp -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="1536" android:viewportHeight="1536">
+    <group android:translateX="256" android:translateY="256">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="40"
+            android:pathData="M362,402 H662 A110,110 0 0 1 662,622 H362 A110,110 0 0 1 362,402 Z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M356,512 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M476,512 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M596,512 a36,36 0 1,0 72,0 a36,36 0 1,0 -72,0 Z" />
+    </group>
+</vector>

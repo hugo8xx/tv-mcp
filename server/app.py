@@ -37,7 +37,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 from starlette.routing import Route
 
-from pages import hidden, landing, msg, page
+from pages import ICON_SVG, hidden, landing, msg, page
 from tokens import b64, sign, verify
 
 MODE = os.environ.get("MODE", "selfhost")
@@ -777,6 +777,10 @@ log ของ server บันทึกชื่อคำสั่ง โดเ�
 <h2>ลบข้อมูล</h2><p>ลบบัญชีได้เองทันทีที่ <a href="/account">หน้าบัญชี</a> ข้อมูลทั้งหมดของคุณจะถูกลบจากฐานข้อมูล</p>""")
 
 
+def favicon(_: Request):
+    return Response(ICON_SVG, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
 def health(_: Request):
     body = {"ok": True, "mode": MODE}
     if not CLOUD:
@@ -786,7 +790,7 @@ def health(_: Request):
 
 SECURITY_HEADERS = {
     # หน้า "อนุญาต" ต้องไม่ถูกฝังใน iframe (clickjacking) — แนวเดียวกับ pact-auth
-    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https://claude.ai https://claude.com http://localhost:* http://127.0.0.1:*; frame-ancestors 'none'; base-uri 'none'",
+    "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self' https://claude.ai https://claude.com http://localhost:* http://127.0.0.1:*; frame-ancestors 'none'; base-uri 'none'",
     "X-Frame-Options": "DENY",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
@@ -812,6 +816,7 @@ class SecurityHeaders:
 app = Starlette(routes=[
     Route("/", home),
     Route("/health", health),
+    Route("/favicon.svg", favicon),
     Route("/.well-known/oauth-authorization-server", auth_server_meta),
     Route("/.well-known/oauth-protected-resource", resource_meta),
     Route("/.well-known/oauth-protected-resource/mcp", resource_meta),
