@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
         root.setPadding(96, 56, 96, 56);
 
         TextView title = text(34);
-        title.setText("📺 TV Remote");
+        title.setText("📺 MCP");
         big = text(44);
         big.setGravity(Gravity.CENTER);
         big.setTextColor(Color.rgb(255, 214, 102));
@@ -135,7 +135,7 @@ public class MainActivity extends Activity {
         status.setText(
                 "Server: " + (server.isEmpty() ? "ยังไม่ได้ตั้ง — กด \"เปลี่ยน server\"" : server) + "\n"
                 + "จับคู่: " + (paired ? "แล้ว" : "ยังไม่ได้") + " · สถานะ: " + RemoteService.status + "\n"
-                + "สิทธิ์เปิดแอป/ลิงก์: " + (overlay ? "✅ พร้อม" : "❌ ยังไม่ได้ให้ — กด \"ให้สิทธิ์เปิดแอป\" แล้วเปิดให้ TV Remote") + "\n"
+                + "สิทธิ์เปิดแอป/ลิงก์: " + (overlay ? "✅ พร้อม" : "❌ ยังไม่ได้ให้ — กด \"ให้สิทธิ์เปิดแอป\" แล้วเปิดให้ MCP") + "\n"
                 + "ปุ่มรีโมท/ปิดเครื่อง (Sony IP Control): " + (p.getString("psk", "").isEmpty() ? "ยังไม่ได้ตั้ง PSK" : "พร้อม") + "\n"
                 + "คำสั่งล่าสุด: " + RemoteService.lastCommand + "\n\n"
                 + "ไม่ต้องเปิดหน้านี้ค้างไว้ — ทำงานเบื้องหลังเอง");
@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
         try {
             JSONObject start = new JSONObject(RemoteService.postJson(server + "/tv/pair/start", "{}"));
             String pid = start.getString("pair_id");
-            showBig("รหัส  " + start.getString("code"), "เปิด " + start.getString("url") + " บนมือถือ แล้วใส่รหัสนี้");
+            showBig("รหัส  " + start.getString("code"), "เปิด " + start.getString("url") + " บนมือถือหรือคอมพิวเตอร์ แล้วใส่รหัสนี้");
             long until = System.currentTimeMillis() + start.optLong("expires_in", 600) * 1000;
             while (pairing == me && System.currentTimeMillis() < until) {
                 Thread.sleep(3000);
@@ -197,7 +197,7 @@ public class MainActivity extends Activity {
         try {
             startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
         } catch (Exception e) {
-            showBig("ทีวีรุ่นนี้เปิดหน้านี้ตรงไม่ได้", "ไปที่ Settings › Apps › Special app access › Display over other apps › TV Remote");
+            showBig("ทีวีรุ่นนี้เปิดหน้านี้ตรงไม่ได้", "ไปที่ Settings › Apps › Special app access › Display over other apps › MCP");
         }
     }
 

@@ -19,7 +19,7 @@
         </intent>
     </queries>
     <application
-        android:label="TV Remote"
+        android:label="MCP"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/banner"
         android:allowBackup="false"

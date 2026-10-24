@@ -37,7 +37,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 from starlette.routing import Route
 
-from pages import SOURCE_URL, hidden, msg, page
+from pages import hidden, landing, msg, page
 from tokens import b64, sign, verify
 
 MODE = os.environ.get("MODE", "selfhost")
@@ -392,7 +392,7 @@ class TV:
 
     async def call(self, cmd: str, args: dict, timeout=15) -> dict:
         if not self.online():
-            raise ToolError("ทีวีไม่ได้ออนไลน์ (ปิดอยู่ / standby / แอป TV Remote ไม่ได้รัน)")
+            raise ToolError("ทีวีไม่ได้ออนไลน์ (ปิดอยู่ / standby / แอป MCP บนทีวีไม่ได้รัน)")
         cid = uuid.uuid4().hex[:12]
         fut = asyncio.get_running_loop().create_future()
         self.pending[cid] = fut
@@ -519,7 +519,7 @@ async def pair_page(request: Request):
 
     def form(m=None, cls="err"):
         return page("จับคู่ทีวี", f"""<h1>📺 จับคู่ทีวี</h1>
-<p class="mut">เปิดแอป TV Remote บนทีวี แล้วใส่รหัส 6 หลักที่ขึ้นบนจอ</p>{msg(m, cls)}
+<p class="mut">เปิดแอป MCP บนทีวี แล้วใส่รหัส 6 หลักที่ขึ้นบนจอ</p>{msg(m, cls)}
 <form method="post">{hidden({"csrf": csrf(user)})}
 <input name="code" inputmode="numeric" placeholder="รหัส 6 หลักบนจอทีวี" autocomplete="off" required autofocus>
 <button class="primary">จับคู่</button></form>""")
@@ -757,16 +757,7 @@ async def account(request: Request):
 def home(request: Request):
     if not CLOUD:  # self-host: คงพฤติกรรมเดิมไว้ให้ health check
         return health(request)
-    return page("หน้าแรก", f"""<h1>📺 TV MCP</h1>
-<p>สั่งทีวี Android TV ที่บ้านจาก Claude — บนมือถือ เว็บ หรือ Desktop</p>
-<p class="mut">"เปิด YouTube บนทีวี" · "เสียง 20" · "เปิดลิงก์นี้บนทีวี" · "ปิดทีวี"</p>
-<h2>เริ่มใช้ 3 ขั้น</h2>
-<div class="card">1. ติดตั้งแอป <b>TV Remote</b> บนทีวี<br><code>github.com/hugo8xx/tv-mcp/releases/latest/download/tv-remote.apk</code></div>
-<div class="card">2. เปิดแอปบนทีวี แล้วจับคู่ด้วยรหัส 6 หลักที่ <a href="/pair">{escape(urlsplit(PUBLIC_URL).netloc)}/pair</a></div>
-<div class="card">3. ใน claude.ai เพิ่ม custom connector: <code>{PUBLIC_URL}/mcp</code></div>
-<a class="btn primary" href="/account">เข้าสู่ระบบด้วย Google</a>
-<p class="mut">ทำงานเต็มที่กับ Sony BRAVIA · ยี่ห้ออื่นเปิดแอปและปรับเสียงได้ · ช่วงทดลอง (beta) ใช้ฟรี</p>
-<p class="mut">ซอฟต์แวร์โอเพนซอร์ส AGPL-3.0 — <a href="{SOURCE_URL}">ดูซอร์สโค้ด</a> หรือติดตั้งบน server ของคุณเอง</p>""")
+    return landing(PUBLIC_URL, urlsplit(PUBLIC_URL).netloc)
 
 
 def privacy(_: Request):

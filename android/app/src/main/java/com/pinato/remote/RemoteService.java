@@ -102,9 +102,9 @@ public class RemoteService extends Service {
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         NotificationManager nm = getSystemService(NotificationManager.class);
-        nm.createNotificationChannel(new NotificationChannel("remote", "TV Remote", NotificationManager.IMPORTANCE_MIN));
+        nm.createNotificationChannel(new NotificationChannel("remote", "MCP", NotificationManager.IMPORTANCE_MIN));
         Notification n = new Notification.Builder(this, "remote")
-                .setContentTitle("TV Remote").setContentText("รอคำสั่งจาก Claude")
+                .setContentTitle("MCP").setContentText("รอคำสั่งจาก Claude")
                 .setSmallIcon(android.R.drawable.ic_media_play).build();
         startForeground(1, n);
         if (worker == null || !worker.isAlive()) {
